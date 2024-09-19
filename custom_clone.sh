@@ -9,30 +9,53 @@ fi
 SOURCE_REPO=$1
 DEST_REPO=$2
 
-# Get the repository name from the source repository URL
-REPO_NAME=$(basename -s .git "$SOURCE_REPO")
 
-# Clone the source repository
-git clone "$SOURCE_REPO" "$REPO_NAME-clean"
+kill_history(){
+        rm -rf .git
+        git init
+        git add *
+        
+        git add */.*
+        git commit -m "clean commit"
+        git branch -M main
+}
 
-cd "$REPO_NAME-clean" || exit 1
 
-# Remove files and folders matching "*solution*" from the entire git history
+
+echo "--- clone repo: $SOURCE_REPO ---"
+
+git clone $SOURCE_REPO _workdir
+
+cd _workdir
+
 git filter-branch --force --index-filter \
     'git rm -r --cached --ignore-unmatch "*solution*"' \
     --prune-empty --tag-name-filter cat -- --all
 
-# Clean up unnecessary files and optimize the repository
 rm -rf .git/refs/original/
 git reflog expire --expire=now --all
 git gc --prune=now
 
-# Set the destination repository as the new origin
+
+echo "--- kill history ---"
+
+kill_history
+
+
+echo "--- change origin to $DEST_REPO ---"
+
 git remote remove origin
 git remote add origin "$DEST_REPO"
+
+echo "--- push to new origin ---"
 
 # Push the cleaned repository to the destination
 git push -u origin --all
 git push -u origin --tags
 
 echo "Repository forked to $DEST_REPO without files and folders matching '*solution*'."
+
+echo "--- clean _workdir ---"
+
+cd ..
+rm -rf _workdir

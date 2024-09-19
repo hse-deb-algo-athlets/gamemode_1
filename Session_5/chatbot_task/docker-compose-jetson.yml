@@ -1,7 +1,5 @@
 version: '3'
 
-name: chatbot
-
 services:
   frontend:
     build:
@@ -42,7 +40,7 @@ services:
       - app-network
 
   ollama:
-    image: dustynv/ollama:r36.2.0
+    image: dustynv/ollama:r35.4.1
     ports:
       - 11434:11434
     volumes:
