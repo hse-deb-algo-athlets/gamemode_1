@@ -4,8 +4,10 @@ import uvicorn
 import logging
 from contextlib import asynccontextmanager
 import traceback
-
+import os
 from src.bot import CustomChatBot
+
+INDEX_DATA = bool(int(os.environ["INDEX_DATA"]))
 
 # Set up logger
 logger = logging.getLogger("uvicorn")
@@ -17,7 +19,8 @@ async def lifespan(app: FastAPI):
     FastAPI lifespan manager to ensure CustomChatBot is initialized and cleaned up correctly.
     """
     logger.info("Creating instance of custom chatbot.")
-    app.state.chatbot = CustomChatBot(index_data=True)
+    logger.info(f"Index data to vector store: {INDEX_DATA}")
+    app.state.chatbot = CustomChatBot(index_data=INDEX_DATA)
     try:
         yield
     finally:

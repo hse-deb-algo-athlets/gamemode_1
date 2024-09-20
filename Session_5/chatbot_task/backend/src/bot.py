@@ -32,7 +32,7 @@ class CustomChatBot:
     concise answers using a language model (ChatOllama).
     """
 
-    def __init__(self, index_data: bool = True) -> None:
+    def __init__(self, index_data: bool) -> None:
         """
         Initialize the CustomChatBot class by setting up the ChromaDB client for document retrieval
         and the ChatOllama language model for answer generation.

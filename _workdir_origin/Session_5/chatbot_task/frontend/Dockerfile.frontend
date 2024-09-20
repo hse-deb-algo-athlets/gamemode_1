@@ -1,0 +1,23 @@
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl
+
+# Copy the pyproject.toml for dependency installation
+COPY requirements.lock /app/
+RUN PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -r requirements.lock
+
+# Copy the rest of the application code
+COPY . /app
+
+# Expose the FastAPI default port
+EXPOSE 7860
+ENV GRADIO_SERVER_NAME="0.0.0.0"
+
+# Start the FastAPI application using uvicorn for better performance
+CMD ["python", "app.py"]

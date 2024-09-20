@@ -3,6 +3,8 @@
 # Check if correct number of arguments provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 source_repo_url destination_repo_url"
+    echo "   - source_repo_url: the source git repo"
+    echo "   - destination_repo_url: an empty git repo"
     exit 1
 fi
 
@@ -12,15 +14,22 @@ DEST_REPO=$2
 
 kill_history(){
         rm -rf .git
-        git init
-        git add *
-        
-        git add */.*
-        git commit -m "clean commit"
-        git branch -M main
+
 }
 
+init_new_repo(){
+    git init
+    git add *
+    
+    git add */.*
+    git commit -m "clean commit"
+    git branch -M main
+}
 
+exchange_origin(){
+    git remote remove origin
+    git remote add origin "$DEST_REPO"
+}
 
 echo "--- clone repo: $SOURCE_REPO ---"
 
@@ -41,11 +50,12 @@ echo "--- kill history ---"
 
 kill_history
 
+init_new_repo
+
 
 echo "--- change origin to $DEST_REPO ---"
 
-git remote remove origin
-git remote add origin "$DEST_REPO"
+exchange_origin
 
 echo "--- push to new origin ---"
 

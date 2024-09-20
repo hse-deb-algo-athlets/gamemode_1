@@ -20,6 +20,8 @@ services:
     ports:
       - "5001:5001"
     container_name: backend
+    environment:
+      - INDEX_DATA=0
     depends_on:
       - chroma
       - ollama
@@ -27,7 +29,6 @@ services:
       - app-network
     volumes:
       - ./backend:/app 
-
 
   chroma:
     image: chromadb/chroma
@@ -53,6 +54,7 @@ services:
     environment:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_HOST=0.0.0.0
+      - MODEL_NAME=sam4096/qwen2tools:1.5b
     networks:
       - app-network
 
