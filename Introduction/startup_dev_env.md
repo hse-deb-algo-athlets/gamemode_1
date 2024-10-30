@@ -12,8 +12,8 @@ Turn on your NVIDIA Jetson Nano by plugging it into a power source and connectin
 
 Use the following credentials to log into your Nano:
 
-- **Username**: `<your_username>` 
-- **Password**: `<your_password>`
+- **Username**: `johbaum8`
+- **Password**: `johbaum8`
 
 
 ### 3. Launch Visual Studio Code
@@ -23,18 +23,7 @@ After logging in, open the terminal and navigate to the project directory. Then,
 #### Terminal Commands:
 
 ```bash
-cd /ssd/build-your-own-chatbot   # Navigate to the project folder
-code .                           # Launch VSCode in the project directory
+cd /home/johbaum8/DEV/build-your-own-chatbot  # Navigate to the project folder
+code .                                        # Launch VSCode in the project directory
 ```
-
-### 4. Check Docker Installation
-
-To ensure Docker is running and properly installed, use the following command:
-
-```bash
-docker --version
-```
-
-If Docker is installed, this command will return the installed version. If it's not installed, you may need to set it up before continuing.
-
 ---

@@ -38,7 +38,7 @@ class CustomChatBot:
         and the ChatOllama language model for answer generation.
         """
         # Initialize the embedding function for document retrieval
-        self.embedding_function = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+        self.embedding_function = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2", cache_folder="/embedding_model")
         
         # Initialize the ChromaDB client
         self.client = self._initialize_chroma_client()

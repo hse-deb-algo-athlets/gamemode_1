@@ -1,4 +1,5 @@
-FROM python:3.10-slim
+# Stage 1: Build stage
+FROM python:3.11-slim AS build-stage
 
 # Set working directory
 WORKDIR /app
@@ -7,20 +8,57 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     sqlite3 libsqlite3-dev \
-    curl
+    curl \
+    && apt-get clean
 
-# Copy the pyproject.toml for dependency installation
+# Copy the requirements file
 COPY requirements.lock /app/
-RUN PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -r requirements.lock
 
-# Copy the rest of the application code
+# Install Python dependencies in the build stage
+RUN pip install --no-cache-dir -r requirements.lock
+
+# Ensure transformers library is available
+RUN pip install --no-cache-dir transformers
+
+# Create the embedding model directory
+RUN mkdir -p /app/src/embedding_model
+
+# Download and cache the Hugging Face model during the build
+RUN python -c "from langchain_huggingface import HuggingFaceEmbeddings; HuggingFaceEmbeddings(model_name='sentence-transformers/all-mpnet-base-v2', cache_folder='/app/src/embedding_model')"
+
+# Copy the application code to the build stage
 COPY . /app
+
+# Stage 2: Final stage (runtime environment)
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y \
+    sqlite3 libsqlite3-dev \
+    curl \
+    && apt-get clean
+
+# Copy the installed Python packages from the build stage to the final image
+COPY --from=build-stage /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=build-stage /usr/local/bin /usr/local/bin
+
+# Copy the Hugging Face model from the build stage
+COPY --from=build-stage /app/src/embedding_model /app/src/embedding_model
+
+# Copy the application code from the build stage
+COPY --from=build-stage /app /app
+
+# Install uvicorn in the final stage
+RUN pip install --no-cache-dir uvicorn
+
+# Set the environment variable for the Hugging Face cache location
+ENV HF_HOME=/app/src/embedding_model
 
 # Expose the FastAPI default port
 EXPOSE 5001
 
-# Start the FastAPI application using uvicorn for better performance
-#CMD ["python", "main.py"]
-
-# Start the FastAPI application using uvicorn for better performance with autoreload
+# Start the FastAPI application using uvicorn with autoreload
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5001", "--reload"]

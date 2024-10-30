@@ -22,6 +22,7 @@ services:
     container_name: backend
     environment:
       - INDEX_DATA=0
+      - MODEL_NAME=llama3.2
     depends_on:
       - chroma
       - ollama
@@ -41,22 +42,27 @@ services:
       - app-network
 
   ollama:
-    image: dustynv/ollama:r35.4.1
+    image: dustynv/ollama:r36.4.0
     ports:
       - 11434:11434
     volumes:
       - ./ollama/ollama:/root/.ollama
-      - ./run_ollama.sh:/run_ollama.sh
     container_name: ollama
     tty: true
-    entrypoint: ["/bin/bash"]
-    command: ["/run_ollama.sh"]
+    entrypoint: ["/bin/bash", "-c"]
+    command: ["( /bin/ollama serve & sleep 5; /bin/ollama run llama3.2 )"]
     environment:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_HOST=0.0.0.0
-      - MODEL_NAME=sam4096/qwen2tools:1.5b
     networks:
       - app-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
 networks:
   app-network:
