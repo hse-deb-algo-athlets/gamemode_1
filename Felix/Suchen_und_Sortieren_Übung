@@ -1,0 +1,53 @@
+import time
+
+def binarySearchRecu(arr, low, high, x):
+
+    if high >= low:
+        
+        mid=int (low +(high-low)/2)
+      
+        if arr[mid] == x:
+            return mid
+        
+        if arr[mid] > x:
+            return  binarySearchRecu(arr, low, mid-1, x)
+        
+        return  binarySearchRecu(arr, mid+1, high, x)
+    
+    return -1
+
+def binarySearchIter(arr, low, high, x) :
+
+    while low <= high :
+
+        mid= int (low + (high-low) / 2) 
+
+        if arr[mid] == x:
+            return mid
+        
+        if arr[mid] < x:
+            low= mid + 1
+        
+        else : 
+            high = mid -1
+
+    return -1
+
+def myFunction():
+    print("some usefull actions ... taking 10 sec")
+    time.sleep(10) #sec
+    
+
+
+
+start= time.time()
+arr= [1, 3, 5, 7, 9, 12, 15, 21, 23, 29 ]
+low= 0
+high= len(arr)
+x= 3
+#myFunction()
+a = binarySearchRecu(arr, low, high, x) 
+print(a)
+stop = time.time()
+
+print ('Laufzeit = ' +'{:5.3f} s'.format (stop-start))
