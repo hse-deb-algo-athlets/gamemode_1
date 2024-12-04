@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 # TODO: Implement the functions of the CustomChatBot Class. Use the knowledge and code from Session_4
 
-class CustomChatBot:
+class CustomChatBot: 
     """
     A class representing a chatbot that uses a ChromaDB client for document retrieval
     and the ChatOllama model for generating answers.
@@ -55,7 +55,7 @@ class CustomChatBot:
 
         # Initialize the large language model (LLM) from Ollama
         # TODO: ADD HERE YOUR CODE
-        self.llm = ...
+        self.llm = ChatOllama(model="llama3.2")
 
         # Set up the retrieval-augmented generation (RAG) pipeline
         self.qa_rag_chain = self._initialize_qa_rag_chain()
@@ -69,8 +69,18 @@ class CustomChatBot:
         """
         logger.info("Initialize chroma db client.")
 
+
         # TODO: ADD HERE YOUR CODE
-        ...
+        client = chromadb.HttpClient(
+            host="localhost",
+            port=8000,
+            ssl=False,
+            headers=None,
+            settings=Settings(allow_reset=True, anonymized_telemetry=False),
+            tenant=DEFAULT_TENANT,
+            database=DEFAULT_DATABASE,
+        )
+        return client
 
     def _initialize_vector_db(self) -> Chroma:
         """
@@ -82,12 +92,35 @@ class CustomChatBot:
         logger.info("Initialize chroma vector db.")
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        collection = self.client.get_or_create_collection("collection_name")
+
+# Create chromadb
+# ADD HERE YOUR CODE
+        vector_db_from_client = Chroma(
+            client=self.client,
+            collection_name="collection_name",
+            embedding_function=self.embedding_function,
+        )
+        return vector_db_from_client
     
     def _index_data_to_vector_db(self):
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        pdf_doc = "./AI_Book.pdf"
+
+# Create pdf data loader
+# ADD HERE YOUR CODE
+        loader = PyPDFLoader(file_path=pdf_doc)
+
+# Load and split documents in chunks
+# ADD HERE YOUR CODE
+        pages = loader.load()
+        splitter = RecursiveCharacterTextSplitter(chunk_size = 10000, chunk_overlap = 20)
+        pages_chunked = splitter.split_documents(pages)
+        #
+
+
+
 
 
     def _initialize_qa_rag_chain(self) -> RunnableSerializable[Serializable, str]:
@@ -104,7 +137,10 @@ class CustomChatBot:
         """
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        
+
+
+        
 
     def _format_docs(self, docs: List[Document]) -> str:
         """
