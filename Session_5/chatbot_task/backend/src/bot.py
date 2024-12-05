@@ -60,6 +60,8 @@ class CustomChatBot:
         # Set up the retrieval-augmented generation (RAG) pipeline
         self.qa_rag_chain = self._initialize_qa_rag_chain()
 
+
+
     def _initialize_chroma_client(self) -> ClientAPI:
         """
         Initialize and return a ChromaDB HTTP client for document retrieval.
@@ -82,6 +84,8 @@ class CustomChatBot:
         )
         return client
 
+
+
     def _initialize_vector_db(self) -> Chroma:
         """
         Initialize and return a Chroma vector database using the HTTP client.
@@ -94,8 +98,6 @@ class CustomChatBot:
         # TODO: ADD HERE YOUR CODE
         collection = self.client.get_or_create_collection("collection_name")
 
-# Create chromadb
-# ADD HERE YOUR CODE
         vector_db_from_client = Chroma(
             client=self.client,
             collection_name="collection_name",
@@ -103,23 +105,19 @@ class CustomChatBot:
         )
         return vector_db_from_client
     
+
+
     def _index_data_to_vector_db(self):
 
         # TODO: ADD HERE YOUR CODE
         pdf_doc = "./AI_Book.pdf"
 
-# Create pdf data loader
-# ADD HERE YOUR CODE
         loader = PyPDFLoader(file_path=pdf_doc)
 
-# Load and split documents in chunks
-# ADD HERE YOUR CODE
         pages = loader.load()
         splitter = RecursiveCharacterTextSplitter(chunk_size = 10000, chunk_overlap = 20)
         pages_chunked = splitter.split_documents(pages)
         #
-
-
 
 
 
@@ -137,7 +135,28 @@ class CustomChatBot:
         """
 
         # TODO: ADD HERE YOUR CODE
-        
+        prompt_template = """
+            You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+
+            <context>
+            {context}
+            </context>
+
+            Answer the following question:
+
+            {question}"""
+
+        rag_prompt = ChatPromptTemplate.from_template(prompt_template)
+
+        retriever = self.vector_db.as_retriever()
+
+        qa_rag_chain = ({"context": retriever | self._format_docs, "question": RunnablePassthrough()}
+                        | rag_prompt
+                        | self.llm
+                        | StrOutputParser()
+        )
+
+        return qa_rag_chain
 
 
         
@@ -154,7 +173,9 @@ class CustomChatBot:
         """
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        return "\n\n".join(doc.page_content for doc in docs)
+
+
 
     async def astream(self, question: str):
         """
