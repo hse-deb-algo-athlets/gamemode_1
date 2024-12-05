@@ -3,17 +3,17 @@ import os as os
 import csv
 
 
-def user_punkte(name):
+def user_punkte_laden(name):
 
-    user_Date_csv = os.path.join(os.getcwd(),"user.csv")
+    path = os.path.join(os.getcwd(),"user.csv")
     
-    if os.path.exists(user_Date_csv) != True:
-        with open(user_Date_csv, 'w', newline='') as csvfile:
+    if os.path.exists(path) != True:
+        with open(path, 'w', newline='') as csvfile:
             fieldnames = ['Name', 'Punkte']
             writer = csv.writer(csvfile)
             writer.writerow(fieldnames)
 
-    path = os.path.join(os.getcwd(),"user.csv")
+
     df = pd.read_csv(path, index_col = "Name")
     
     if name not in df.index:
@@ -24,6 +24,19 @@ def user_punkte(name):
     
     return Punkte
 
-
-a = user_punkte("Simon")
+a = user_punkte_laden("Simon")
 print(a)
+
+
+
+
+def user_punkte_hinzufügen(name,punkte):
+    path = os.path.join(os.getcwd(),"user.csv")
+    df = pd.read_csv(path, index_col = "Name")
+
+    df.loc[name] = punkte
+    df.to_csv(path)
+
+
+
+user_punkte_hinzufügen("Felix",121)
