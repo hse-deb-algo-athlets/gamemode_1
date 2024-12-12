@@ -20,7 +20,7 @@ def user_punkte_laden(name):
         df.loc[name] = 0
         df.to_csv(path)
 
-    Punkte = df.loc[name]
+    Punkte = df.loc[name,"Punkte"]
     
     return Punkte
 
