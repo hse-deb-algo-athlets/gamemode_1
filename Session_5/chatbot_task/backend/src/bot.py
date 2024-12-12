@@ -55,7 +55,7 @@ class CustomChatBot:
 
         # Initialize the large language model (LLM) from Ollama
         # TODO: ADD HERE YOUR CODE
-        self.llm = ChatOllama(model="llama3.2")
+        self.llm = ChatOllama(model="llama3.2", base_url="http://ollama:11434")
 
         # Set up the retrieval-augmented generation (RAG) pipeline
         self.qa_rag_chain = self._initialize_qa_rag_chain()
@@ -74,7 +74,7 @@ class CustomChatBot:
 
         # TODO: ADD HERE YOUR CODE
         client = chromadb.HttpClient(
-            host="localhost",
+            host="chroma",
             port=8000,
             ssl=False,
             headers=None,
