@@ -14,16 +14,7 @@ def number(name):
     else:
         return 0
 
-def update_theme(name, demo): 
-    points = number(name)
-    if points <= 10:
-        demo.update(theme=theme_1)
-    elif points <= 20:
-        demo.update(theme=theme_1)
-    elif points <= 30:
-        demo.update(theme=theme_1)
-    else:
-        demo.update(theme="default")
+
 
 theme_1 = gr.themes.Soft(
     primary_hue="zinc",
@@ -46,40 +37,45 @@ theme_3 = gr.themes.Soft(
 )
 
 
+def update_theme(name): 
+    points = number(name)
+    if points <= 10:
+        return theme_1
+    elif points <= 20:
+        return theme_2
+    elif points <= 30:
+        return theme_3
+    else:
+        return "default"
+
+def them_app(name):
+    theme = update_theme(name)
+    with gr.Blocks(theme=theme) as demo:
+            gr.Markdown("# Chatbot_gamemode_1")
+
+            with gr.Row():
+                with gr.Column(scale=1, min_width=100):
+                    #name_input = gr.Textbox(label="Username")
+                    #button = gr.Button("Login")
+                    #points_output = gr.Textbox(label="Points",)
+                    #button.click(fn=number, inputs=name_input, outputs=points_output)
+                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
+                    dropdown_c = gr.Dropdown()
+
+            with gr.Column(scale=15):
+                chat_bot = gr.ChatInterface(
+                    fn=greet, 
+                    chatbot=gr.Chatbot(height=400),
+                    textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
+                    description="",
+                    theme=update_theme(name_input),  # <-- Theme update here
+                    examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
+                    clear_btn="Clear",
+                )
+    return demo
+
 with gr.Blocks() as demo:
-    gr.Markdown("# Chatbot_gamemode_1")
-    
-    with gr.Row():
-        with gr.Column(scale=15):
-            chat_bot = gr.ChatInterface(
-                fn=greet,
-                chatbot=gr.Chatbot(height=400),  # Adjusted height for better usability
-                textbox=gr.Textbox(placeholder="Ask me questions about your script...", container=False, scale=8),
-                description="",
-                theme="default",
-                examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
-                clear_btn="Clear",
-            )
-        
-        with gr.Column(scale=1, min_width=100):
-            name_input = gr.Textbox(label="Username")
-            button = gr.Button("Login")
-            points_output = gr.Textbox(label="Points",)
-            button.click(fn=number, inputs=name_input, outputs=points_output)
-    update_theme(name_input,demo=demo)
-    
+    name_input = gr.Textbox(label="Username")
+    button = gr.Button("Login")
+    button.click(fn=them_app, inputs=name_input, outputs=demo)         
     demo.launch()
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
