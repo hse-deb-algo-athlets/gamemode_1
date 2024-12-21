@@ -62,20 +62,20 @@ def them_app(name):
                     pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
                     dropdown_c = gr.Dropdown()
 
-            with gr.Column(scale=15):
-                chat_bot = gr.ChatInterface(
-                    fn=greet, 
-                    chatbot=gr.Chatbot(height=400),
-                    textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
-                    description="",
-                    theme=update_theme(name_input),  # <-- Theme update here
-                    examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
-                    clear_btn="Clear",
-                )
+                with gr.Column(scale=15):
+                    chatbot_1 = gr.ChatInterface(
+                        fn=greet, 
+                        chatbot=gr.Chatbot(height=400),
+                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
+                        description="",
+                        theme=update_theme(name_input),  # <-- Theme update here
+                        examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
+                        clear_btn="Clear",
+                    )
     return demo
 
 with gr.Blocks() as demo:
     name_input = gr.Textbox(label="Username")
     button = gr.Button("Login")
-    button.click(fn=them_app, inputs=name_input, outputs=demo)         
+    button.click(fn=them_app, inputs=name_input, outputs=None)         
     demo.launch()
