@@ -6,6 +6,10 @@ from contextlib import asynccontextmanager
 import traceback
 import os
 from src.bot import CustomChatBot
+from pydantic import BaseModel
+import pandas as pd
+import os as os
+import csv
 
 INDEX_DATA = bool(int(os.environ["INDEX_DATA"]))
 
@@ -77,6 +81,35 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.error(traceback.format_exc())
     finally:
         logger.info('WebSocket connection closed.')
+
+#NEU
+class User(BaseModel):
+    user_name: str
+@app.get("/user")
+def user(user: User):
+    user_text = user.user_name
+
+    path = os.path.join(os.getcwd(),"user.csv")
+    
+    if os.path.exists(path) == False:
+        with open(path, 'w', newline='') as csvfile:
+            fieldnames = ['Name', 'Punkte']
+            writer = csv.writer(csvfile)
+            writer.writerow(fieldnames)
+
+    df = pd.read_csv(path, index_col = "Name")
+    
+    if user_text not in df.index:
+        df.loc[user_text] = 0
+        df.to_csv(path)
+
+    Punkte = df.loc[user_text, "Punkte"]
+    Punkte = str(Punkte)
+    data = {"Punkte": Punkte}
+    
+    return(data)
+
+
 
 if __name__ == "__main__":
     # Run the FastAPI app with uvicorn
