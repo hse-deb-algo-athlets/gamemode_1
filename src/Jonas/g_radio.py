@@ -1,18 +1,35 @@
 import gradio as gr
+import pandas as pd
+import os as os
+import csv
+
+
+def user_punkte_laden(name):
+
+    path = os.path.join(os.getcwd(),"user.csv")
+    
+    if os.path.exists(path) != True:
+        with open(path, 'w', newline='') as csvfile:
+            fieldnames = ['Name', 'Punkte']
+            writer = csv.writer(csvfile)
+            writer.writerow(fieldnames)
+
+
+    df = pd.read_csv(path, index_col = "Name")
+    
+    if name not in df.index:
+        df.loc[name] = 0
+        df.to_csv(path)
+
+    Punkte = df.loc[name]
+    
+    return Punkte
+
 
 def greet(message, history):
     # Handle chatbot responses here.
     return "Hello, " + message
 
-def number(name):
-    if name == "Test10":
-        return 10
-    elif name == "Test20":
-        return 20
-    elif name == "Test30":
-        return 30
-    else:
-        return 0
 
 
 
@@ -32,13 +49,13 @@ theme_2 = gr.themes.Soft(
 
 theme_3 = gr.themes.Soft(
     primary_hue="red",
-    secondary_hue="orange",
-    neutral_hue="amber",
+    secondary_hue="blue",
+    neutral_hue="green",
 )
 
 
-def update_theme(name): 
-    points = number(name)
+def update_theme(username): 
+    points = user_punkte_laden(username)
     if points <= 10:
         return theme_1
     elif points <= 20:
@@ -46,36 +63,87 @@ def update_theme(name):
     elif points <= 30:
         return theme_3
     else:
-        return "default"
+        return theme_1
 
-def them_app(name):
+def update_username(name, theme_state):  # Pass theme_state as input
+    points = user_punkte_laden(name)
     theme = update_theme(name)
-    with gr.Blocks(theme=theme) as demo:
+    return theme
+
+
+
+def interface_theme(number):
+    if number == 1:
+        with gr.Blocks(theme_1) as demo:
             gr.Markdown("# Chatbot_gamemode_1")
-
             with gr.Row():
-                with gr.Column(scale=1, min_width=100):
-                    #name_input = gr.Textbox(label="Username")
-                    #button = gr.Button("Login")
-                    #points_output = gr.Textbox(label="Points",)
-                    #button.click(fn=number, inputs=name_input, outputs=points_output)
-                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
-                    dropdown_c = gr.Dropdown()
-
                 with gr.Column(scale=15):
                     chatbot_1 = gr.ChatInterface(
                         fn=greet, 
                         chatbot=gr.Chatbot(height=400),
                         textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
                         description="",
-                        theme=update_theme(name_input),  # <-- Theme update here
                         examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
                         clear_btn="Clear",
                     )
-    return demo
 
-with gr.Blocks() as demo:
-    name_input = gr.Textbox(label="Username")
-    button = gr.Button("Login")
-    button.click(fn=them_app, inputs=name_input, outputs=None)         
-    demo.launch()
+                with gr.Column(scale=1, min_width=100):
+                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
+                    dropdown_c = gr.Dropdown()
+                    
+        return demo
+    elif number == 2:
+        with gr.Blocks(theme_2) as demo:
+            gr.Markdown("# Chatbot_gamemode_1")
+            with gr.Row():
+                with gr.Column(scale=15):
+                    chatbot_1 = gr.ChatInterface(
+                        fn=greet, 
+                        chatbot=gr.Chatbot(height=400),
+                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
+                        description="",
+                        examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
+                        clear_btn="Clear",
+                    )
+
+                with gr.Column(scale=1, min_width=100):
+                    name_input = gr.Textbox(label="Username")
+                    button = gr.Button("Login")
+                    points_output = gr.Textbox(label="Points")
+                    theme_state = gr.State(theme_1)  # Create a state to store the theme
+                    button.click(fn=update_username, inputs=[name_input, theme_state], outputs=theme_state)  # Update theme based on the username
+                    button.click(fn=user_punkte_laden, inputs=name_input, outputs=points_output)  # Show points
+                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
+                    dropdown_c = gr.Dropdown()
+                    
+        return demo
+    else:
+        with gr.Blocks(theme_3) as demo:
+            gr.Markdown("# Chatbot_gamemode_1")
+            with gr.Row():
+                with gr.Column(scale=15):
+                    chatbot_1 = gr.ChatInterface(
+                        fn=greet, 
+                        chatbot=gr.Chatbot(height=400),
+                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
+                        description="",
+                        examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
+                        clear_btn="Clear",
+                    )
+
+                with gr.Column(scale=1, min_width=100):
+                    name_input = gr.Textbox(label="Username")
+                    button = gr.Button("Login")
+                    points_output = gr.Textbox(label="Points")
+                    theme_state = gr.State(theme_1)  # Create a state to store the theme
+                    button.click(fn=update_username, inputs=[name_input, theme_state], outputs=theme_state)  # Update theme based on the username
+                    button.click(fn=user_punkte_laden, inputs=name_input, outputs=points_output)  # Show points
+                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
+                    dropdown_c = gr.Dropdown()
+                    
+        return demo
+    
+
+
+a = interface_theme(3)
+a.launch()
