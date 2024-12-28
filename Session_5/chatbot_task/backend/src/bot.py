@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 # TODO: Implement the functions of the CustomChatBot Class. Use the knowledge and code from Session_4
 
-class CustomChatBot:
+class CustomChatBot: 
     """
     A class representing a chatbot that uses a ChromaDB client for document retrieval
     and the ChatOllama model for generating answers.
@@ -55,10 +55,12 @@ class CustomChatBot:
 
         # Initialize the large language model (LLM) from Ollama
         # TODO: ADD HERE YOUR CODE
-        self.llm = ...
+        self.llm = ChatOllama(model="llama3.2", base_url="http://ollama:11434")
 
         # Set up the retrieval-augmented generation (RAG) pipeline
         self.qa_rag_chain = self._initialize_qa_rag_chain()
+
+
 
     def _initialize_chroma_client(self) -> ClientAPI:
         """
@@ -69,8 +71,20 @@ class CustomChatBot:
         """
         logger.info("Initialize chroma db client.")
 
+
         # TODO: ADD HERE YOUR CODE
-        ...
+        client = chromadb.HttpClient(
+            host="chroma",
+            port=8000,
+            ssl=False,
+            headers=None,
+            settings=Settings(allow_reset=True, anonymized_telemetry=False),
+            tenant=DEFAULT_TENANT,
+            database=DEFAULT_DATABASE,
+        )
+        return client
+
+
 
     def _initialize_vector_db(self) -> Chroma:
         """
@@ -82,12 +96,29 @@ class CustomChatBot:
         logger.info("Initialize chroma vector db.")
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        collection = self.client.get_or_create_collection("collection_name")
+
+        vector_db_from_client = Chroma(
+            client=self.client,
+            collection_name="collection_name",
+            embedding_function=self.embedding_function,
+        )
+        return vector_db_from_client
     
+
+
     def _index_data_to_vector_db(self):
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        pdf_doc = "./AI_Book.pdf"
+
+        loader = PyPDFLoader(file_path=pdf_doc)
+
+        pages = loader.load()
+        splitter = RecursiveCharacterTextSplitter(chunk_size = 10000, chunk_overlap = 20)
+        pages_chunked = splitter.split_documents(pages)
+        #
+
 
 
     def _initialize_qa_rag_chain(self) -> RunnableSerializable[Serializable, str]:
@@ -104,7 +135,31 @@ class CustomChatBot:
         """
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        prompt_template = """
+            You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+
+            <context>
+            {context}
+            </context>
+
+            Answer the following question:
+
+            {question}"""
+
+        rag_prompt = ChatPromptTemplate.from_template(prompt_template)
+
+        retriever = self.vector_db.as_retriever()
+
+        qa_rag_chain = ({"context": retriever | self._format_docs, "question": RunnablePassthrough()}
+                        | rag_prompt
+                        | self.llm
+                        | StrOutputParser()
+        )
+
+        return qa_rag_chain
+
+
+        
 
     def _format_docs(self, docs: List[Document]) -> str:
         """
@@ -118,7 +173,9 @@ class CustomChatBot:
         """
 
         # TODO: ADD HERE YOUR CODE
-        ...
+        return "\n\n".join(doc.page_content for doc in docs)
+
+
 
     async def astream(self, question: str):
         """
