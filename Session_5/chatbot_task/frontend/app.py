@@ -1,6 +1,8 @@
 import gradio as gr
 import websockets
 import logging
+import requests
+import json
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -13,12 +15,15 @@ async def websocket_chat(message: str):
         async with websockets.connect(uri) as websocket:
             logger.info(f"Sending message to WebSocket: {message}")
             await websocket.send(message)
-
+            bool = True
             # Continuously receive and yield chunks until the connection is closed
-            while True:
+            while bool:
                 try:
                     chunk = await websocket.recv()
                     logger.info(f"Received chunk: {chunk}")
+                    if chunk == "":
+                        bool = False
+                        break
                     yield chunk  # Yield each chunk as a separate message
                 except websockets.exceptions.ConnectionClosed:
                     logger.info("WebSocket connection closed by the server.")
@@ -48,14 +53,42 @@ async def chat(message: str, history=[]):
         message = f"Error: {e}"
         yield message
 
+
+#NEU
+def user(Name: str):
+    uri = "http://backend:5001/user"
+    try:
+        name_json = {"user_name": Name}
+        antwort = requests.get(uri, json= name_json )
+        a = antwort.json()["Punkte"]
+        return a
+    
+    except Exception as ex:
+        gr.Warning("Fehler" + str(ex))
+
+
+
 # Launch Gradio Chat Interface
-gr.ChatInterface(
-    fn=chat,
-    chatbot=gr.Chatbot(height=400),  # Adjusted height for better usability
-    textbox=gr.Textbox(placeholder="Ask me questions about your script...", container=False, scale=7),
-    title="Chatbot",
-    description="Ask me questions about your lecture.",
-    theme="soft",
-    examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
-    clear_btn="Clear"
-).launch(debug=True)
+with gr.Blocks() as demo:
+    gr.Markdown("# gamemode_1")
+    with gr.Row():
+        with gr.Column(scale=15):
+            gr.ChatInterface(
+                fn=chat,
+                chatbot=gr.Chatbot(height=400),  # Adjusted height for better usability
+                textbox=gr.Textbox(placeholder="Ask me questions about your script...", container=False, scale=7),
+                title="Chatbot",
+                description="Ask me questions about your lecture.",
+                theme="soft",
+                examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
+                clear_btn="Clear",
+            )
+
+        with gr.Column(scale=1, min_width=100):
+            name = gr.Textbox(label="Name")
+            button = gr.Button("Login")
+            punkte = gr.Textbox(label="Punkte")
+
+            button.click(fn=user, inputs=name, outputs=punkte)
+    
+    demo.launch(debug=True)
