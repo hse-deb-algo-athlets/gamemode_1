@@ -15,12 +15,15 @@ async def websocket_chat(message: str):
         async with websockets.connect(uri) as websocket:
             logger.info(f"Sending message to WebSocket: {message}")
             await websocket.send(message)
-
+            bool = True
             # Continuously receive and yield chunks until the connection is closed
-            while True:
+            while bool:
                 try:
                     chunk = await websocket.recv()
                     logger.info(f"Received chunk: {chunk}")
+                    if chunk == "":
+                        bool = False
+                        break
                     yield chunk  # Yield each chunk as a separate message
                 except websockets.exceptions.ConnectionClosed:
                     logger.info("WebSocket connection closed by the server.")
@@ -65,23 +68,10 @@ def user(Name: str):
 
 
 
-
-
-
-
-
 # Launch Gradio Chat Interface
 with gr.Blocks() as demo:
     gr.Markdown("# gamemode_1")
-
     with gr.Row():
-        with gr.Column(scale=1, min_width=100):
-            name = gr.Textbox(label="Name")
-            button = gr.Button("Login")
-            punkte = gr.Textbox(label="Punkte")
-
-            button.click(fn=user, inputs=name, outputs=punkte)
-    
         with gr.Column(scale=15):
             gr.ChatInterface(
                 fn=chat,
@@ -93,4 +83,12 @@ with gr.Blocks() as demo:
                 examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
                 clear_btn="Clear",
             )
+
+        with gr.Column(scale=1, min_width=100):
+            name = gr.Textbox(label="Name")
+            button = gr.Button("Login")
+            punkte = gr.Textbox(label="Punkte")
+
+            button.click(fn=user, inputs=name, outputs=punkte)
+    
     demo.launch(debug=True)

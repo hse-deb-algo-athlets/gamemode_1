@@ -49,9 +49,9 @@ async def websocket_endpoint(websocket: WebSocket):
     """
     await websocket.accept()
     logger.info('Client connected.')
-
+    bool = True
     try:
-        while True:
+        while bool:
             try:
                 # Receive input from the WebSocket client
                 input_data = await websocket.receive_text()
@@ -63,6 +63,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     logger.info(f"Sending chunk: {chain_result}")
                     # Send the response chunk back to the client
                     await websocket.send_text(chain_result)
+                    if chain_result == "":
+                        bool = False
+                        break
+
 
             except WebSocketDisconnect:
                 # Graceful handling of WebSocket disconnection
@@ -81,6 +85,7 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.error(traceback.format_exc())
     finally:
         logger.info('WebSocket connection closed.')
+
 
 #NEU
 class User(BaseModel):
