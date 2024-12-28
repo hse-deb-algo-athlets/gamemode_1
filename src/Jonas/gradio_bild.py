@@ -29,19 +29,23 @@ def on_button_click(input_value):
     return input_value
 
 
+def update_pdf(pdf,pdf_array):
+    if pdf:
+        if pdf.name not in pdf_array:
+            pdf_array.append(pdf.name)
+    return pdf_array
+
 with gr.Blocks() as demo:
             gr.Markdown("# Chatbot_gamemode_1")
             with gr.Row():
                 with gr.Column(scale=2):
                     visibleity = gr.State("")
-                    bool_bild =[False,False,False]
                     with gr.Row():
                         image1 = gr.Image()
                     with gr.Row():
                         image2 = gr.Image()
                     with gr.Row():
                         image3 = gr.Image()
-                    
                     visibleity.change(fn=update_bild, inputs=visibleity, outputs=[image1, image2, image3])
                 with gr.Column(scale=6):
                     chatbot_1 = gr.ChatInterface(
@@ -62,5 +66,7 @@ with gr.Blocks() as demo:
                     button_refresh.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
                     #button_login.click(fn=update_username_points, inputs=name_input, outputs=points_output)
                     pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
-                    dropdown_c = gr.Dropdown()
+                    pdf_array = []
+                    dropdown_c = gr.Dropdown(choices=pdf_array, label="Uploaded Pdfs")
+                    pdf_input.change(fn=update_pdf,inputs=[pdf_input,dropdown_c],outputs=dropdown_c)
             demo.launch()

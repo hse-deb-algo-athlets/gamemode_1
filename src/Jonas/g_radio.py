@@ -144,6 +144,9 @@ def interface_theme(number):
         return demo
     
 
-
-a = interface_theme(3)
-a.launch()
+with gr.Blocks() as demo:
+    name_input = gr.Textbox(label="Username")
+    button = gr.Button("Login")
+    points = user_punkte_laden(name_input)
+    button.click(fn=interface_theme,inputs=points,outputs=None)
+    demo.launch()
