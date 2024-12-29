@@ -66,14 +66,25 @@ def user(Name: str):
     except Exception as ex:
         gr.Warning("Fehler" + str(ex))
 
-def update_bild(name):
-    points = user(name)
-    if points == "10":
-        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= False),gr.Image(value="Bilder/Bild 30.jpg",visible= False)
-    elif points == "20":
-        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= True),gr.Image(value="Bilder/Bild 30.jpg",visible= False)
-    elif points == "30":
+def update_bild(Name: str):
+    uri = "http://backend:5001/Bilder"
+    Bild = "Keins"
+    try:
+        name_json = {"user_name": Name}
+        antwort = requests.get(uri, json= name_json )
+        Bild = antwort.json()["AAA"]
+    except Exception as ex:
+        gr.Warning("Fehler" + str(ex))
+        gr.Warning()
+
+    if Bild == "Bild_1":
+        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
+    elif Bild == "Bild_2":
+        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= True),gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
+    elif Bild == "Bild_3":
         return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= True),gr.Image(value="Bilder/Bild 30.jpg",visible= True)
+    else:
+        return gr.Image(value="Bilder/Bild 10 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 20 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
     
 
 def on_button_click(input_value):
@@ -87,11 +98,11 @@ with gr.Blocks() as demo:
                 with gr.Column(scale=2):
                     visibleity = gr.State("")
                     with gr.Row():
-                        image1 = gr.Image()
+                        image1 = gr.Image(value="Bilder/Bild 10 Unlock.jpg",visible= True)
                     with gr.Row():
-                        image2 = gr.Image()
+                        image2 = gr.Image(value="Bilder/Bild 20 Unlock.jpg",visible= True)
                     with gr.Row():
-                        image3 = gr.Image()
+                        image3 = gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
                     visibleity.change(fn=update_bild, inputs=visibleity, outputs=[image1, image2, image3])
                 with gr.Column(scale=6):
                     chatbot_1 = gr.ChatInterface(
