@@ -17,13 +17,14 @@ def update_username_points(name):
     
 def update_bild(name):
     points = update_username_points(name)
-    if points <= 10:
-        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= False),gr.Image(value="Bilder/Bild 30.jpg",visible= False)
-    elif points <= 20:
-        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= True),gr.Image(value="Bilder/Bild 30.jpg",visible= False)
-    elif points <= 30:
+    if points >= 10 and points <= 19:
+        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
+    elif points >= 20 and points <= 29:
+        return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= True),gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
+    elif points >= 30:
         return gr.Image(value="Bilder/Bild 10.jpg",visible= True),gr.Image(value="Bilder/Bild 20.jpg",visible= True),gr.Image(value="Bilder/Bild 30.jpg",visible= True)
-    
+    else:
+        return gr.Image(value="Bilder/Bild 10 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 20 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True) 
 
 def on_button_click(input_value):
     return input_value
@@ -41,17 +42,17 @@ with gr.Blocks() as demo:
                 with gr.Column(scale=2):
                     visibleity = gr.State("")
                     with gr.Row():
-                        image1 = gr.Image()
+                        image1 = gr.Image(value="Bilder/Bild 10 Unlock.jpg",visible= True)
                     with gr.Row():
-                        image2 = gr.Image()
+                        image2 = gr.Image(value="Bilder/Bild 20 Unlock.jpg",visible= True)
                     with gr.Row():
-                        image3 = gr.Image()
+                        image3 = gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
                     visibleity.change(fn=update_bild, inputs=visibleity, outputs=[image1, image2, image3])
                 with gr.Column(scale=6):
                     chatbot_1 = gr.ChatInterface(
                         fn=greet, 
-                        chatbot=gr.Chatbot(height=400),
-                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
+                        chatbot=gr.Chatbot(height=500,scale=8),
+                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=3),
                         examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
                         clear_btn="Clear",
                     )
@@ -65,8 +66,9 @@ with gr.Blocks() as demo:
                     button_login.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
                     button_refresh.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
                     #button_login.click(fn=update_username_points, inputs=name_input, outputs=points_output)
-                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
-                    pdf_array = []
-                    dropdown_c = gr.Dropdown(choices=pdf_array, label="Uploaded Pdfs")
-                    pdf_input.change(fn=update_pdf,inputs=[pdf_input,dropdown_c],outputs=dropdown_c)
+                    pdf_input = gr.File(label="Wähle eine PDF aus")
+                    collection_dropdown = gr.Dropdown(choices=[], label="Wähle eine Collection")
+                    #pdf_input.change(process_pdf, inputs=pdf_input, outputs=collection_dropdown)
+                    #gr.Button("refresh_col").click(get_collections, outputs=collection_dropdown)
+
             demo.launch()
