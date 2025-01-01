@@ -10,6 +10,7 @@ from pydantic import BaseModel
 import pandas as pd
 import os as os
 import csv
+import numpy as np
 
 INDEX_DATA = bool(int(os.environ["INDEX_DATA"]))
 
@@ -114,6 +115,35 @@ def user(user: User):
     
     return(data)
 
+
+@app.get("/Bilder")
+def Bilder(user: User):
+    user_text = user.user_name
+    Bild = "Keins"
+    path = os.path.join(os.getcwd(),"user.csv")
+    
+    if os.path.exists(path) == True:
+        df = pd.read_csv(path, index_col = "Name")
+    
+        #if user_text not in df.index:
+            #return(Bild)
+        
+        #Punkte = df[df["Name"]== user_text]["Punkte"]
+        #Punkte = df.loc[user_text, "Punkte"]
+        print("\n","\n",df.dtypes,"\n","\n",df,"\n","\n")
+        Punkte = df.loc[user_text, "Punkte"]
+        print(type(Punkte),"\n","\n")
+
+        if Punkte >= 30:            #ICH HASSE ALLES"!!!!!§"!(/$§&!(§"I/&)!/"&§(!"/&Z")")
+            Bild = "Bild_3"
+        elif Punkte >= 20:
+            Bild = "Bild_2"
+        elif Punkte >= 10:
+            Bild = "Bild_1"
+        else:
+            Bild = "keins"
+            
+    return{"AAA": Bild}
 
 
 if __name__ == "__main__":
