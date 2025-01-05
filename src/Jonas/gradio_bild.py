@@ -29,12 +29,13 @@ def update_bild(name):
 def on_button_click(input_value):
     return input_value
 
+def pdf_upload(pdf_path):
+    if pdf_path == False:
+        gr.Warning("keine Pdf ausgewählt")
+    else:
+        return pdf_path
 
-def update_pdf(pdf,pdf_array):
-    if pdf:
-        if pdf.name not in pdf_array:
-            pdf_array.append(pdf.name)
-    return pdf_array
+
 
 with gr.Blocks() as demo:
             gr.Markdown("# Chatbot_gamemode_1")
@@ -65,10 +66,11 @@ with gr.Blocks() as demo:
                     button_login.click(fn=update_username_points, inputs=name_input, outputs=points_output)
                     button_login.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
                     button_refresh.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
-                    #button_login.click(fn=update_username_points, inputs=name_input, outputs=points_output)
-                    pdf_input = gr.File(label="Wähle eine PDF aus")
-                    collection_dropdown = gr.Dropdown(choices=[], label="Wähle eine Collection")
-                    #pdf_input.change(process_pdf, inputs=pdf_input, outputs=collection_dropdown)
-                    #gr.Button("refresh_col").click(get_collections, outputs=collection_dropdown)
+                    pdf_input = gr.File(label="Wähle eine PDF aus",file_types=[".pdf"])
+                    pdf_input.change(fn=pdf_upload,inputs=pdf_input,outputs=None)
+                    textbox_text = gr.Textbox()
+                    pdf_choicesssss = [10,2]
+                    pdf_choice = gr.Dropdown(label="pdf auswahl",choices=pdf_choicesssss,interactive=True)
+                    pdf_choice.change(on_button_click,inputs=pdf_choice,outputs=textbox_text)
 
             demo.launch()

@@ -87,6 +87,48 @@ def update_bild(Name: str):
         return gr.Image(value="Bilder/Bild 10 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 20 Unlock.jpg",visible= True),gr.Image(value="Bilder/Bild 30 Unlock.jpg",visible= True)
     
 
+
+def pdf_upload(pdf_path:str):
+    url = "http://backend:5001/pdf_upload"
+    try:
+        if pdf_path != None:
+           #logger.info(f"pdf_path: {pdf_path}")
+           with open (pdf_path,"rb") as pdf_file:
+               #logger.info(f"geladen: {pdf_file}")
+               files = {"file":pdf_file}
+               response = requests.post(url,files=files)
+
+    except Exception as ex:
+        gr.Warning("Fehler" + str(ex))
+        gr.Warning()    
+
+def pdf_dropdown_choices():
+    url = "http://backend:5001/pdf_dropdown_choices"
+    try:
+        answer = requests.get(url)
+        #logger.info(answer)
+        if answer == None:
+            return ["Keine Pdf"]
+        #logger.info(f"dadadaddasdasd {type(answer.json())}")
+        return gr.Dropdown(label="Ausgewähltes Pdf",choices=answer.json(),interactive=True)
+        
+        
+    except Exception as ex:
+        gr.Warning("Fehler" + str(ex))
+        gr.Warning()    
+
+def pdf_from_dropdown(name):
+    url = "http://backend:5001/pdf_from_dropdown"
+    try:
+        name_json = {"pdf_name": name}
+        response = requests.post(url, json= name_json )
+    except Exception as ex:
+        gr.Warning("Fehler" + str(ex))
+        gr.Warning()    
+
+    
+
+
 def on_button_click(input_value):
     return input_value
 
@@ -121,9 +163,13 @@ with gr.Blocks() as demo:
                     button_login.click(fn=user, inputs=name_input, outputs=points_output)
                     button_login.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
                     button_refresh.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
-                    #button_login.click(fn=update_username_points, inputs=name_input, outputs=points_output)
-                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
-                    pdf_array = []
-                    dropdown_c = gr.Dropdown(choices=pdf_array, label="Uploaded Pdfs")
-                    #pdf_input.change(fn=update_pdf,inputs=[pdf_input,dropdown_c],outputs=dropdown_c)
+                    #pdfs einlesen
+                    pdf_input = gr.File(label="Wähle eine PDF zum hochladen aus",file_types=[".pdf"])
+                    pdf_input.change(fn=pdf_upload,inputs=pdf_input,outputs=None)
+                    pdf_choice = gr.Dropdown(label="pdf auswahl")
+                    button_fragen = gr.Button("Fragen generieren")
+                    pdf_input.change(fn=pdf_dropdown_choices,outputs=pdf_choice)
+                    text = gr.Textbox()
+                    pdf_choice.select(fn=on_button_click,inputs=pdf_choice,outputs=text)
             demo.launch(debug=True)
+            

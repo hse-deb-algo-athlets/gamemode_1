@@ -16,6 +16,7 @@ import re
 from uuid import uuid4
 from typing import List
 import logging
+from main import momentante_pdf
 
 logger = logging.getLogger("uvicorn")
 logger.setLevel(logging.INFO)
@@ -108,9 +109,9 @@ class CustomChatBot:
 
 
     def _index_data_to_vector_db(self):
-
+        name_pdf_pdf = momentante_pdf
         # TODO: ADD HERE YOUR CODE
-        pdf_doc = "./AI_Book.pdf"
+        pdf_doc = "../pdf/" + name_pdf_pdf
 
         loader = PyPDFLoader(file_path=pdf_doc)
 

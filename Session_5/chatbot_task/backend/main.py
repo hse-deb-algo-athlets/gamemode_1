@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import logging
@@ -11,6 +11,7 @@ import pandas as pd
 import os as os
 import csv
 import numpy as np
+
 
 INDEX_DATA = bool(int(os.environ["INDEX_DATA"]))
 
@@ -145,7 +146,45 @@ def Bilder(user: User):
             
     return{"AAA": Bild}
 
+@app.post("/pdf_upload")
+async def pdf_upload(file: UploadFile = File(...)):
+    try:
+        os.makedirs("pdf",exist_ok=True)
+        filename = file.filename or "default.pdf"
+        file_path = os.path.join("pdf", filename)
+        with open(file_path, "wb") as file_:
+            file_.write(await file.read())
+        #logger.info("Order erstellt")
+       
+    except Exception as e:
+        return logger.info(e)    
+        
+
+@app.get("/pdf_dropdown_choices")
+def pdf_dropdown_choices():
+    all_pdf = []
+    pdf_order_path = os.path.join(os.getcwd(),"pdf")
+    for file_ in os.listdir(pdf_order_path):
+        datei_pfad = os.path.join(pdf_order_path, file_)
+        if os.path.isfile(datei_pfad):
+            all_pdf.append(file_)
+            #logger.info(file_)
+            #logger.info("dropdown file answer")
+    #logger.info(all_pdf)
+    return all_pdf
+
+momentante_pdf = ""    
+
+@app.post("pdf_from_dropdown")
+async def pdf_from_dropdown(name:str):
+    try:
+        global momentante_pdf
+        momentante_pdf = name 
+    except Exception as e:
+        return logger.info(e)  
+
+
 
 if __name__ == "__main__":
-    # Run the FastAPI app with uvicorn
+# Run the FastAPI app with uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=5001, reload=True, log_level="debug")
