@@ -109,7 +109,7 @@ with gr.Blocks() as demo:
                         fn=chat, 
                         chatbot=gr.Chatbot(height=400),
                         textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
-                        examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
+                        examples=["Stelle eine frage", "Antwort:"],
                         clear_btn="Clear",
                     )
 
@@ -125,5 +125,8 @@ with gr.Blocks() as demo:
                     pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
                     pdf_array = []
                     dropdown_c = gr.Dropdown(choices=pdf_array, label="Uploaded Pdfs")
+                    button_Frage = gr.Button("Stelle Frage")
+                    button_Frage_message = gr.Textbox(visible=False, value="Stelle eine frage")
+                    button_Frage.click(fn=chat,inputs=button_Frage_message)
                     #pdf_input.change(fn=update_pdf,inputs=[pdf_input,dropdown_c],outputs=dropdown_c)
             demo.launch(debug=True)
