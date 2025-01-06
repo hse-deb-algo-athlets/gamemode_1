@@ -36,7 +36,6 @@ def pdf_upload(pdf_path):
         return pdf_path
 
 
-
 with gr.Blocks() as demo:
             gr.Markdown("# Chatbot_gamemode_1")
             with gr.Row():
@@ -57,7 +56,6 @@ with gr.Blocks() as demo:
                         examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
                         clear_btn="Clear",
                     )
-
                 with gr.Column(scale=1, min_width=100):
                     name_input = gr.Textbox(label="Username")
                     button_login = gr.Button("Login")

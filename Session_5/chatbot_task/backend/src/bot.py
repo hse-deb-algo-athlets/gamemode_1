@@ -16,7 +16,7 @@ import re
 from uuid import uuid4
 from typing import List
 import logging
-from main import momentante_pdf
+import os
 
 logger = logging.getLogger("uvicorn")
 logger.setLevel(logging.INFO)
@@ -115,10 +115,10 @@ class CustomChatBot:
         return Document(page_content=text, metadata=chunk.metadata)
 
     def _index_data_to_vector_db(self):
-        name_pdf_pdf = momentante_pdf
+        from main import momentante_pdf
         # TODO: ADD HERE YOUR CODE
-        pdf_doc = "src/AI_Book.pdf"
-
+        pdf_doc = os.path.join(os.getcwd(),"../pdf",momentante_pdf)
+        logger.info("Aktueller Pfad: "+pdf_doc)
         loader = PyPDFLoader(file_path=pdf_doc)
 
         pages = loader.load()
@@ -127,8 +127,6 @@ class CustomChatBot:
         pages_chunked_cleaned = [self.clean_text(chunk.page_content) for chunk in pages_chunked]
         uuids = [str(uuid4()) for _ in range(len(pages_chunked_cleaned))]
         self.vector_db.add_documents(documents=pages_chunked_cleaned, id=uuids)
-
-        #
 
 
 

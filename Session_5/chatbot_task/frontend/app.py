@@ -149,8 +149,8 @@ with gr.Blocks() as demo:
                 with gr.Column(scale=6):
                     chatbot_1 = gr.ChatInterface(
                         fn=chat, 
-                        chatbot=gr.Chatbot(height=400),
-                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=8),
+                        chatbot=gr.Chatbot(height=400, scale=8),
+                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=3),
                         examples=["Stelle eine frage", "Antwort:"],
                         clear_btn="Clear",
                     )

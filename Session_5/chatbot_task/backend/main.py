@@ -202,7 +202,8 @@ momentante_pdf = ""
 async def pdf_from_dropdown(name:str):
     try:
         global momentante_pdf
-        momentante_pdf = name 
+        momentante_pdf = name
+        logger.info(f"Momentane pdf: {momentante_pdf}") 
     except Exception as e:
         return logger.info(e)  
 
