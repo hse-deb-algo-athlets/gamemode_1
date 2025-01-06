@@ -65,6 +65,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     logger.info(f"Sending chunk: {chain_result}")
                     # Send the response chunk back to the client
                     await websocket.send_text(chain_result)
+                    if  chain_result == "#":
+                        user_punkte_hinzufügen()
+                        print("aAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                    if  chain_result == "@":
+                        user_punkte_hinzufügen()
+                        print("aAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     if chain_result == "":
                         bool = False
                         break
@@ -92,9 +98,14 @@ async def websocket_endpoint(websocket: WebSocket):
 #NEU
 class User(BaseModel):
     user_name: str
+aktueller_user = ""
+
 @app.get("/user")
 def user(user: User):
     user_text = user.user_name
+
+    global aktueller_user
+    aktueller_user = user_text
 
     path = os.path.join(os.getcwd(),"user.csv")
     
@@ -117,6 +128,18 @@ def user(user: User):
     return(data)
 
 
+
+def user_punkte_hinzufügen():
+    global aktueller_user
+    print(aktueller_user)
+    aktueller_user = "Felix"
+    path = os.path.join(os.getcwd(),"user.csv")
+    df = pd.read_csv(path, index_col = "Name")
+
+    df.loc[aktueller_user,"Punkte"] = df.loc[aktueller_user,"Punkte"] + 1            # type: ignore
+    df.to_csv(path)
+
+
 @app.get("/Bilder")
 def Bilder(user: User):
     user_text = user.user_name
@@ -135,11 +158,11 @@ def Bilder(user: User):
         Punkte = df.loc[user_text, "Punkte"]
         print(type(Punkte),"\n","\n")
 
-        if Punkte >= 30:            #ICH HASSE ALLES"!!!!!§"!(/$§&!(§"I/&)!/"&§(!"/&Z")")
+        if Punkte >= 30:            # type: ignore #ICH HASSE ALLES"!!!!!§"!(/$§&!(§"I/&)!/"&§(!"/&Z")")
             Bild = "Bild_3"
-        elif Punkte >= 20:
+        elif Punkte >= 20:          # type: ignore
             Bild = "Bild_2"
-        elif Punkte >= 10:
+        elif Punkte >= 10:          # type: ignore
             Bild = "Bild_1"
         else:
             Bild = "keins"

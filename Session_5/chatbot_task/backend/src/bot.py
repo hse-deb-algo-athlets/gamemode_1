@@ -106,23 +106,33 @@ class CustomChatBot:
         )
         return vector_db_from_client
     
-
+    def clean_text(self, chunk):
+        text = chunk.page_concat
+    # Remove surrogate pairs
+        text = re.sub(r'[\ud800-\udfff]', '', text)
+    # Optionally remove non-ASCII characters (depends on your use case)
+        text = re.sub(r'[^\x00-\x7F]+', '', text)
+        return Document(page_content=text, metadata=chunk.metadata)
 
     def _index_data_to_vector_db(self):
         name_pdf_pdf = momentante_pdf
         # TODO: ADD HERE YOUR CODE
-        pdf_doc = "../pdf/" + name_pdf_pdf
+        pdf_doc = "src/AI_Book.pdf"
 
         loader = PyPDFLoader(file_path=pdf_doc)
 
         pages = loader.load()
         splitter = RecursiveCharacterTextSplitter(chunk_size = 10000, chunk_overlap = 20)
         pages_chunked = splitter.split_documents(pages)
+        pages_chunked_cleaned = [self.clean_text(chunk.page_content) for chunk in pages_chunked]
+        uuids = [str(uuid4()) for _ in range(len(pages_chunked_cleaned))]
+        self.vector_db.add_documents(documents=pages_chunked_cleaned, id=uuids)
+
         #
 
 
 
-    def _initialize_qa_rag_chain(self) -> RunnableSerializable[Serializable, str]:
+    def _initialize_qa_rag_chain(self) -> RunnableSerializable:
         """
         Set up the retrieval-augmented generation (RAG) pipeline for answering questions.
         
@@ -137,19 +147,16 @@ class CustomChatBot:
 
         # TODO: ADD HERE YOUR CODE
         prompt_template = """
-            You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-
+            Du bist ein Assistent. Wenn der text "Stelle eine frage" kommt erstellst du eine frage zum {context}. Der User antwortet auf diese frage wie folgt "Antwort:..." ... ist die antwort zu deiner gestellten frage bewerte sie und schreib "#" wenn es richtig ist oder "@"wenn es falsch ist am ende.
             <context>
             {context}
             </context>
-
-            Answer the following question:
 
             {question}"""
 
         rag_prompt = ChatPromptTemplate.from_template(prompt_template)
 
-        retriever = self.vector_db.as_retriever()
+        retriever = self.vector_db.as_retriever(search_kwargs={"k": 5})
 
         qa_rag_chain = ({"context": retriever | self._format_docs, "question": RunnablePassthrough()}
                         | rag_prompt
@@ -190,7 +197,7 @@ class CustomChatBot:
         """
         logger.info("Streaming RAG chain response.")
         try:
-            async for chunk in self.qa_rag_chain.astream(question):
+            async for chunk in self.qa_rag_chain.astream(question): # type: ignore
                 logger.debug(f"Yielding chunk: {chunk}")
                 yield chunk
         except Exception as e:
