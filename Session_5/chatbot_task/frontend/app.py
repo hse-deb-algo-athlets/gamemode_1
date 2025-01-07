@@ -121,7 +121,7 @@ def pdf_from_dropdown(name):
     url = "http://backend:5001/pdf_from_dropdown"
     try:
         name_json = {"pdf_name": name}
-        response = requests.post(url, json= name_json )
+        response = requests.post(url,json=name_json )
     except Exception as ex:
         gr.Warning("Fehler" + str(ex))
         gr.Warning()    
@@ -149,9 +149,9 @@ with gr.Blocks() as demo:
                 with gr.Column(scale=6):
                     chatbot_1 = gr.ChatInterface(
                         fn=chat, 
-                        chatbot=gr.Chatbot(height=400, scale=8),
+                        chatbot=gr.Chatbot(height=400,scale=8),
+                        examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
                         textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=3),
-                        examples=["Stelle eine frage", "Antwort:"],
                         clear_btn="Clear",
                     )
 
@@ -163,12 +163,13 @@ with gr.Blocks() as demo:
                     button_login.click(fn=user, inputs=name_input, outputs=points_output)
                     button_login.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
                     button_refresh.click(fn=on_button_click,inputs=name_input,outputs=visibleity)
-                    #button_login.click(fn=update_username_points, inputs=name_input, outputs=points_output)
-                    pdf_input = gr.File(label="Upload PDF", file_types=[".pdf"])
-                    pdf_array = []
-                    dropdown_c = gr.Dropdown(choices=pdf_array, label="Uploaded Pdfs")
-                    button_Frage = gr.Button("Stelle Frage")
-                    button_Frage_message = gr.Textbox(visible=False, value="Stelle eine frage")
-                    button_Frage.click(fn=chat,inputs=button_Frage_message)
-                    #pdf_input.change(fn=update_pdf,inputs=[pdf_input,dropdown_c],outputs=dropdown_c)
+                    #pdfs einlesen
+                    pdf_input = gr.File(label="Wähle eine PDF zum hochladen aus",file_types=[".pdf"])
+                    pdf_input.change(fn=pdf_upload,inputs=pdf_input,outputs=None)
+                    pdf_choice = gr.Dropdown(label="pdf auswahl")
+                    button_fragen = gr.Button("Fragen generieren")
+                    pdf_input.change(fn=pdf_dropdown_choices,outputs=pdf_choice)
+                    text = gr.Textbox()
+                    pdf_choice.select(fn=on_button_click,inputs=pdf_choice,outputs=text)
+                    pdf_choice.select(fn=pdf_from_dropdown,inputs=pdf_choice)
             demo.launch(debug=True)

@@ -52,7 +52,7 @@ class CustomChatBot:
             self._index_data_to_vector_db()
 
         # Initialize the document retriever
-        self.retriever = self.vector_db.as_retriever(k=3)
+        self.retriever = self.vector_db.as_retriever()
 
         # Initialize the large language model (LLM) from Ollama
         # TODO: ADD HERE YOUR CODE
@@ -104,6 +104,7 @@ class CustomChatBot:
             collection_name="collection_name",
             embedding_function=self.embedding_function,
         )
+        
         return vector_db_from_client
     
     def clean_text(self, chunk):
@@ -117,7 +118,8 @@ class CustomChatBot:
     def _index_data_to_vector_db(self):
         from main import momentante_pdf
         # TODO: ADD HERE YOUR CODE
-        pdf_doc = os.path.join(os.getcwd(),"../pdf",momentante_pdf)
+        #pdf_doc = os.path.join(os.getcwd(),"../pdf",momentante_pdf)
+        pdf_doc = os.path.join(os.getcwd(),"../pdf/Fem_Test.pdf")
         logger.info("Aktueller Pfad: "+pdf_doc)
         loader = PyPDFLoader(file_path=pdf_doc)
 
@@ -179,6 +181,9 @@ class CustomChatBot:
         """
 
         # TODO: ADD HERE YOUR CODE
+        for i, doc in enumerate(docs):
+            logger.info(f"Dokument {i+1}: {doc.page_content}, Metadaten: {doc.metadata}")
+            
         return "\n\n".join(doc.page_content for doc in docs)
 
 

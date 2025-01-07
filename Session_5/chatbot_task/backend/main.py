@@ -198,14 +198,19 @@ def pdf_dropdown_choices():
 
 momentante_pdf = ""    
 
-@app.post("pdf_from_dropdown")
-async def pdf_from_dropdown(name:str):
+class PdfRequest(BaseModel):
+    pdf_name: str
+
+@app.post("/pdf_from_dropdown")
+async def pdf_from_dropdown(request: PdfRequest):
     try:
         global momentante_pdf
-        momentante_pdf = name
+        momentante_pdf = request.pdf_name
+        logger.info(f"type name: {type(request.pdf_name)}")
         logger.info(f"Momentane pdf: {momentante_pdf}") 
     except Exception as e:
         return logger.info(e)  
+
 
 
 
