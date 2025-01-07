@@ -52,8 +52,8 @@ with gr.Blocks() as demo:
                     chatbot_1 = gr.ChatInterface(
                         fn=greet, 
                         chatbot=gr.Chatbot(height=500,scale=8),
-                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=3),
                         examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
+                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=3),
                         clear_btn="Clear",
                     )
                 with gr.Column(scale=1, min_width=100):

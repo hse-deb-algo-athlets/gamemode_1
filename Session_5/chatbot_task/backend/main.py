@@ -196,7 +196,7 @@ def pdf_dropdown_choices():
     #logger.info(all_pdf)
     return all_pdf
 
-momentante_pdf = ""    
+momentante_pdf = "leere.pdf"    
 
 class PdfRequest(BaseModel):
     pdf_name: str
@@ -208,6 +208,13 @@ async def pdf_from_dropdown(request: PdfRequest):
         momentante_pdf = request.pdf_name
         logger.info(f"type name: {type(request.pdf_name)}")
         logger.info(f"Momentane pdf: {momentante_pdf}") 
+
+
+        # Lösche den aktuellen Chatbot
+        del app.state.chatbot
+        
+        # Erstelle den Chatbot mit den gleichen Einstellungen wie zuvor
+        app.state.chatbot = CustomChatBot(index_data=INDEX_DATA)
     except Exception as e:
         return logger.info(e)  
 

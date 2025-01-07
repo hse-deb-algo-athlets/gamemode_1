@@ -48,8 +48,8 @@ class CustomChatBot:
         self.vector_db = self._initialize_vector_db()
 
         # Process pdf, embedd data and index to ChromaDB
-        if index_data:
-            self._index_data_to_vector_db()
+        
+        self._index_data_to_vector_db()
 
         # Initialize the document retriever
         self.retriever = self.vector_db.as_retriever()
@@ -85,7 +85,24 @@ class CustomChatBot:
         )
         return client
 
-
+    def clean_text_for_chroma(self,text: str):
+    
+        # 1. Entferne Unicode-Surrogatpaare
+        text = re.sub(r'[\ud800-\udfff]', '', text)
+    
+        # 2. Entferne nicht-ASCII-Zeichen (optional, abhängig von deinem Anwendungsfall)
+        # text = re.sub(r'[^\x00-\x7F]+', '', text)  # Entkommentiere dies, wenn nicht-ASCII-Zeichen entfernt werden sollen.
+        
+        # 3. Entferne HTML-Tags, falls der Text HTML enthält
+        text = re.sub(r'<.*?>', '', text)
+        
+        # 4. Entferne zusätzliche Leerzeichen und Zeilenumbrüche
+        text = re.sub(r'\s+', ' ', text)  # Ersetzt mehrere Leerzeichen, Tabulatoren oder Zeilenumbrüche durch ein einzelnes Leerzeichen.
+        
+        # 5. Entferne führende und abschließende Leerzeichen
+        text = text.strip()
+    
+        return text
 
     def _initialize_vector_db(self) -> Chroma:
         """
@@ -97,18 +114,25 @@ class CustomChatBot:
         logger.info("Initialize chroma vector db.")
 
         # TODO: ADD HERE YOUR CODE
-        collection = self.client.get_or_create_collection("collection_name")
+        #self.client.delete_collection("collection_name")
+        from main import momentante_pdf
 
+        mo_collection = self.clean_text_for_chroma(momentante_pdf)
+        collection = self.client.get_or_create_collection(mo_collection)
+        
         vector_db_from_client = Chroma(
             client=self.client,
-            collection_name="collection_name",
+            collection_name=mo_collection,
             embedding_function=self.embedding_function,
         )
         
+                
+        for doc in collection.get()["documents"] or []:
+            logger.info(doc)
         return vector_db_from_client
     
     def clean_text(self, chunk):
-        text = chunk.page_concat
+        text = chunk.page_content
     # Remove surrogate pairs
         text = re.sub(r'[\ud800-\udfff]', '', text)
     # Optionally remove non-ASCII characters (depends on your use case)
@@ -118,17 +142,23 @@ class CustomChatBot:
     def _index_data_to_vector_db(self):
         from main import momentante_pdf
         # TODO: ADD HERE YOUR CODE
-        #pdf_doc = os.path.join(os.getcwd(),"../pdf",momentante_pdf)
-        pdf_doc = os.path.join(os.getcwd(),"../pdf/Fem_Test.pdf")
-        logger.info("Aktueller Pfad: "+pdf_doc)
-        loader = PyPDFLoader(file_path=pdf_doc)
+        mo_collection = self.clean_text_for_chroma(momentante_pdf)
+        collection = self.client.get_or_create_collection(mo_collection)
+        docs = collection.get()["documents"] or []
+        if docs == []:
+            logger.info("Lade Doc in vectordb")
 
-        pages = loader.load()
-        splitter = RecursiveCharacterTextSplitter(chunk_size = 10000, chunk_overlap = 20)
-        pages_chunked = splitter.split_documents(pages)
-        pages_chunked_cleaned = [self.clean_text(chunk.page_content) for chunk in pages_chunked]
-        uuids = [str(uuid4()) for _ in range(len(pages_chunked_cleaned))]
-        self.vector_db.add_documents(documents=pages_chunked_cleaned, id=uuids)
+            pdf_doc = "pdf/"+momentante_pdf
+            logger.info("Aktueller Pfad: "+pdf_doc)
+            loader = PyPDFLoader(file_path=pdf_doc)
+
+            pages = loader.load()
+            splitter = RecursiveCharacterTextSplitter(chunk_size = 10000, chunk_overlap = 20)
+            pages_chunked = splitter.split_documents(pages)
+            pages_chunked_cleaned = [self.clean_text(chunk) for chunk in pages_chunked]
+            uuids = [str(uuid4()) for _ in range(len(pages_chunked_cleaned))]
+            self.vector_db.add_documents(documents=pages_chunked_cleaned, id=uuids)
+        
 
 
 
