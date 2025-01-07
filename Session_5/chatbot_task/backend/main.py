@@ -52,6 +52,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     logger.info('Client connected.')
     bool = True
+    Richtig = ""
     try:
         while bool:
             try:
@@ -65,12 +66,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     logger.info(f"Sending chunk: {chain_result}")
                     # Send the response chunk back to the client
                     await websocket.send_text(chain_result)
-                    if  chain_result == "#":
+                    if len(Richtig) <= 8:
+                        Richtig += chain_result
+                    if  Richtig == "RICHTIG" or Richtig == "RICHTIG!":
                         user_punkte_hinzufügen()
-                        print("aAAAAAAAAAAAAAAAAAAAAAAAAAA")
-                    if  chain_result == "@":
-                        user_punkte_hinzufügen()
-                        print("aAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     if chain_result == "":
                         bool = False
                         break
