@@ -166,3 +166,7 @@ cython_debug/
 
 ollama
 chroma
+
+#gamemode_1
+Session_5/chatbot_task/backend/pdf/
+Session_5/chatbot_task/backend/user.csv

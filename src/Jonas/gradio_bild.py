@@ -34,10 +34,14 @@ def pdf_upload(pdf_path):
         gr.Warning("keine Pdf ausgewählt")
     else:
         return pdf_path
-
+markdown_text = """
+<div style="text-align: center;">
+    <h1>Chatbot gamemode_1</h1>
+</div>
+"""
 
 with gr.Blocks() as demo:
-            gr.Markdown("# Chatbot_gamemode_1")
+            gr.Markdown(markdown_text)
             with gr.Row():
                 with gr.Column(scale=2):
                     visibleity = gr.State("")
@@ -53,7 +57,7 @@ with gr.Blocks() as demo:
                         fn=greet, 
                         chatbot=gr.Chatbot(height=500,scale=8),
                         examples=["What is supervised learning?", "What is deep learning?", "What is a linear regression?"],
-                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=3),
+                        textbox=gr.Textbox(placeholder="Ask me questions...", container=False, scale=2),
                         clear_btn="Clear",
                     )
                 with gr.Column(scale=1, min_width=100):

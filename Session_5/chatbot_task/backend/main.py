@@ -68,6 +68,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_text(chain_result)
                     if len(Richtig) <= 8:
                         Richtig += chain_result
+                        logger.info("chain: "+Richtig)
+                        logger.info(aktueller_user)
                     if  Richtig == "RICHTIG" or Richtig == "RICHTIG!":
                         user_punkte_hinzufügen()
                     if chain_result == "":
@@ -131,7 +133,6 @@ def user(user: User):
 def user_punkte_hinzufügen():
     global aktueller_user
     print(aktueller_user)
-    aktueller_user = "Felix"
     path = os.path.join(os.getcwd(),"user.csv")
     df = pd.read_csv(path, index_col = "Name")
 
@@ -177,7 +178,6 @@ async def pdf_upload(file: UploadFile = File(...)):
         with open(file_path, "wb") as file_:
             file_.write(await file.read())
         #logger.info("Order erstellt")
-       
     except Exception as e:
         return logger.info(e)    
         
@@ -207,7 +207,6 @@ async def pdf_from_dropdown(request: PdfRequest):
         momentante_pdf = request.pdf_name
         logger.info(f"type name: {type(request.pdf_name)}")
         logger.info(f"Momentane pdf: {momentante_pdf}") 
-
 
         # Lösche den aktuellen Chatbot
         del app.state.chatbot
